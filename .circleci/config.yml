@@ -34,10 +34,7 @@ jobs:
           command: |
             mvn clean test package
             docker build -t kjoshi/tasktracker .
-  upload-to-aws:
-    executor: aws-cli/default
-    steps:
-      - aws-cli/setup:
+       - aws-cli/setup:
           profile-name: default
       - run: aws s3 ls
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -46,5 +43,3 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
-      - upload-to-aws:
-          context: aws
