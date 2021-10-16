@@ -2,6 +2,9 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+orbs:
+  aws-cli: circleci/aws-cli@2.0
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -31,12 +34,17 @@ jobs:
           command: |
             mvn clean test package
             docker build -t kjoshi/tasktracker .
-
-
-# Invoke jobs via workflows
+  upload-to-aws:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: default
+      - run: aws s3 ls
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   buildapp: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
+      - upload-to-aws:
+          context: aws
