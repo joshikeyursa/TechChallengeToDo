@@ -26,8 +26,11 @@ jobs:
           name: Test
           command: mvn test
       # Use mvn clean and package as the standard maven build phase
-      - run: |
-          docker build -t kjoshi/tasktracker .
+      - run:
+          name: BuildAndDockerize
+          command: |
+            mvn clean test package
+            docker build -t kjoshi/tasktracker .
 
 
 # Invoke jobs via workflows
