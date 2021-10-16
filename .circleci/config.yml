@@ -23,15 +23,14 @@ jobs:
           name: Test
           command: mvn test
       # Use mvn clean and package as the standard maven build phase
-      - run:
-          name: Build
-          command: docker build -t kjoshi/tasktracker .
+      - run: |
+          docker build -t kjoshi/tasktracker .
 
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
+  buildapp: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
