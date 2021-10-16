@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest
+@SpringBootTest
 public class ToDoControllerTest {
 
     @Autowired
@@ -50,11 +49,4 @@ public class ToDoControllerTest {
                 .andExpect(jsonPath("$",hasSize(2)))
                 .andExpect(jsonPath("$[0].id",is(taskBean.getId())));
     }
-
-    @Test
-    public void testControllerError() throws Exception{
-        given(toDoService.fetchAllTasks()).willThrow(new RuntimeException());
-        mockMvc.perform(get("/api/").contentType(MediaType.APPLICATION_JSON)).andExpect(status().is5xxServerError());
-    }
-
 }

@@ -25,6 +25,7 @@ public class TaskBean {
     @Column
     private Integer priority;
 
+    public void setId(String id){this.id = id;}
     public String getId() {
         return id;
     }
