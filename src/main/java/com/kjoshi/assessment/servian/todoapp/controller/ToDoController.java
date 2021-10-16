@@ -34,6 +34,18 @@ public class ToDoController {
         return ResponseEntity.status(returnStatus).body(new ArrayList<TaskBean>());
     }
 
+    @GetMapping("/{taskId}")
+    public ResponseEntity<TaskBean> getTaskById(@PathVariable("taskId") String taskId){
+        Optional<TaskBean> taskRecord = service.getTaskById(taskId);
+        if(taskRecord.isPresent()){
+            TaskBean task = taskRecord.get();
+            service.deleteTask(task);
+            return ResponseEntity.ok(task);
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     @PostMapping("/")
     public ResponseEntity<TaskBean> createTask(@RequestBody TaskBean taskBean){
         taskBean.setId(UUID.randomUUID().toString());
