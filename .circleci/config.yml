@@ -33,7 +33,7 @@ jobs:
           name: BuildAndDockerize
           command: |
             mvn clean test package
-            docker build -t kjoshi/tasktracker
+            docker build -t kjoshi/tasktracker .
   build-and-deploy-fe:
     docker:
       - image: cimg/openjdk:11.0
@@ -42,13 +42,11 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
       - aws-cli/setup:
-          - profile-name: default
+          profile-name: default
       - run:
           name: CreateBucketToHostWebSite
           command: aws cloudformation deploy --stack-name host-website --template-file infra/public-website.yaml
-      - run:
-          name: UploadContent
-          command: aws s3 cp
+
   create-one-time-infra:
     docker:
       - image: cimg/openjdk:11.0
