@@ -1,7 +1,12 @@
 #Ideally this should have Gone in different Repo
 
 Resources:
-  Bucket:
+  TaskTracker:
     Type: 'AWS::S3::Bucket'
-    Properties:
-      BucketName: 'kjoshi-techchallenge'
+
+Outputs:
+  TaskTrackerBucket:
+    Description: Location For the Task Tracker Public website Bucket
+    Value: !Ref TaskTracker
+    Export:
+      Name: TaskTrackerBucket
