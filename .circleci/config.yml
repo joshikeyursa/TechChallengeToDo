@@ -47,7 +47,7 @@ jobs:
       - run:
           name: CopyFECodeToBucket
           command: echo Copying
-  create-one-time-infra:
+  create-one-time-nw-infra:
     docker:
       - image: cimg/openjdk:11.0
     steps:
@@ -62,8 +62,8 @@ jobs:
             echo ${CIRCLE_BRANCH}
             echo ${AWS_ACCOUNT_ID}
       - run:
-          name: CreatePublicBucket
-          command: aws cloudformation create-stack --stack-name tasktracker-public-website --template-body file://infra/public-website.yaml
+          name: CreateNetworkComponents
+          command: aws cloudformation deploy --stack-name tasktracker-newwork-infra --template-file infra/network-onetime-infra.yaml
 
 
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -73,4 +73,4 @@ workflows:
     jobs:
       #- build-and-test-be
       #- build-and-deploy-fe
-      - create-one-time-infra
+      - create-one-time-nw-infra
