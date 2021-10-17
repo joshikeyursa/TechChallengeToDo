@@ -36,11 +36,21 @@ Outputs:
     Value: !Ref TaskTrackerVPC
     Export:
       Name: TaskTrackerVPC
+  TaskTrackerAZ1:
+    Description: TaskTracker App AZ for Subnet1
+    Value: !GetAtt PrivateSubnet1.AvailabilityZone
+    Export:
+      Name: TaskTrackerAZ1
   TaskTrackerSubnet1:
     Description: TaskTracker APP Private Subnet 1
     Value: !Ref PrivateSubnet1
     Export:
       Name: PrivateSubnet1
+  TaskTrackerAZ2:
+    Description: TaskTracker App AZ for Subnet2
+    Value: !GetAtt PrivateSubnet2.AvailabilityZone
+    Export:
+      Name: TaskTrackerAZ2
   TaskTrackerSubnet2:
     Description: TaskTracker APP Private Subnet 2
     Value: !Ref PrivateSubnet2

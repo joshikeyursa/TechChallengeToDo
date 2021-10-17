@@ -10,6 +10,12 @@ Parameters:
       - Test
 
 Mappings:
+  InstanceTypeMap:
+    Production:
+      "InstanceType": "m4.large"
+    Development:
+      "InstanceType": "t3.micro"
+
   ImageByRegionMap:
     ap-southeast-1:
       "HVM64": "ami-073998ba87e205747"
@@ -31,6 +37,7 @@ Resources:
     Properties:
       Name: TaskTrackerTG
       TargetType: instance
+      VpcId: !ImportValue TaskTrackerVPC
       Protocol: HTTP
       Port: 8080 #This needs to be changed once n/w mode is changed
       Tags:
@@ -43,3 +50,17 @@ Resources:
       LaunchTemplateName: TaskTrackerAppLT
       LaunchTemplateData:
         ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64]
+        InstanceType: !FindInMap [InstanceTypeMap,!Ref 'Environment',InstanceType]
+
+  TaskTrackerEC2ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: TaskTrackerEC2ASG
+      LaunchTemplate:
+        LaunchTemplateId: !Ref TaskTrackerEC2ASGLT
+        Version: !GetAtt TaskTrackerEC2ASGLT.LatestVersionNumber
+      AvailabilityZones:
+        - !ImportValue TaskTrackerAZ1
+        - !ImportValue TaskTrackerAZ2
+      MinSize: 0
+      MaxSize: 0
