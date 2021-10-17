@@ -51,6 +51,13 @@ Resources:
       LaunchTemplateData:
         ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64]
         InstanceType: !FindInMap [InstanceTypeMap,!Ref 'Environment',InstanceType]
+        KeyName: keyur-new-mac-v1
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash -xe
+            yum update -y
+            amazon-linux-extras install -y ecs
+            systemctl enable --now ecs
 
   TaskTrackerEC2ASG:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -62,5 +69,5 @@ Resources:
       AvailabilityZones:
         - !ImportValue TaskTrackerAZ1
         - !ImportValue TaskTrackerAZ2
-      MinSize: 0
-      MaxSize: 0
+      MinSize: 1
+      MaxSize: 1
