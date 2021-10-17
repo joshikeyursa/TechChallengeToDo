@@ -37,9 +37,24 @@ jobs:
       - aws-cli/setup:
           profile-name: default
       - run: aws s3 ls
+  build-and-deploy-fe:
+    docker:
+      - image: cimg/openjdk:11.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - aws-cli/setup:
+          profile-name: default
+      - run:
+          name: CreatePublicBucket
+          command: aws cloud-formation create-stack --stack-name tasktracker-public-website --template-body file://infra/public-website.yaml
+
+
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   buildapp: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - build-and-test
+      - build-and-test-be
+      - build-and-deploy-fe
