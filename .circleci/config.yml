@@ -57,6 +57,11 @@ jobs:
       - aws-cli/setup:
           profile-name: default
       - run:
+          name: Testing Variables
+          command: |
+            echo ${CIRCLE_BRANCH}
+            echo ${AWS_ACCOUNT_ID}
+      - run:
           name: CreatePublicBucket
           command: aws cloudformation create-stack --stack-name tasktracker-public-website --template-body file://infra/public-website.yaml
 
@@ -66,6 +71,6 @@ workflows:
   buildapp: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - build-and-test-be
-      - build-and-deploy-fe
+      #- build-and-test-be
+      #- build-and-deploy-fe
       - create-one-time-infra
