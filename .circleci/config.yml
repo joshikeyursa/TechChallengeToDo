@@ -24,7 +24,8 @@ jobs:
       # Then run your tests!
       - setup_remote_docker:
           version: 19.03.13
-
+      - aws-cli/setup:
+          profile-name: default
       - run:
           name: Test
           command: mvn test
@@ -34,6 +35,7 @@ jobs:
           command: |
             mvn clean test package
             docker build -t kjoshi/tasktracker .
+            aws
   build-and-deploy-fe:
     docker:
       - image: cimg/openjdk:11.0
@@ -56,6 +58,9 @@ jobs:
           version: 19.03.13
       - aws-cli/setup:
           profile-name: default
+      - run:
+          name: CreateNetworkComponents
+          command: aws cloudformation deploy --stack-name tasktracker-ecs-infra --template-file infra/onetime-ecs-infra.yaml
       - run:
           name: CreateNetworkComponents
           command: aws cloudformation deploy --stack-name tasktracker-network-infra --template-file infra/onetime-network-infra.yaml
