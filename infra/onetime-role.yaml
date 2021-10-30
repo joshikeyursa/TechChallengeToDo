@@ -1,0 +1,30 @@
+Resources:
+  EcsInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ECSInstanceRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role'
+  ECSInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EcsInstanceRole
+Outputs:
+  EcsInstanceRole:
+    Description: ECS Instance Role ARN
+    Value: !GetAtt EcsInstanceRole.Arn
+    Export:
+      Name: EcsInstanceRoleArn
+  ECSInstanceProfile:
+    Description: ECS Instance Profile ARN
+    Value: !GetAtt ECSInstanceProfile.Arn
+    Export:
+      Name: ECSInstanceProfileArn

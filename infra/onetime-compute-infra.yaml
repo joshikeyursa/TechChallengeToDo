@@ -12,26 +12,21 @@ Parameters:
 Mappings:
   InstanceTypeMap:
     Production:
-      "InstanceType": "m4.large"
+      "InstanceType": "m4.large" #Put an appropriate instance type once ready for prod.
     Development:
       "InstanceType": "t3.micro"
 
+  #For now only Singapore and Sydney configurations are added. As an improvement use SSM commands to fetch these values
   ImageByRegionMap:
     ap-southeast-1:
-      "HVM64": "ami-073998ba87e205747"
+      "HVM64": "ami-04e3e68fcfc9ca078"
     ap-southeast-2:
-      "HVM64": "ami-05c029a4b57edda9e"
-    us-east-1:
-      "HVM64": "ami-0ff8a91507f77f867"
-    us-west-1:
-      "HVM64": "ami-0bdb828fd58c52235"
-    eu-west-1:
-      "HVM64": "ami-047bb4163c506cd98"
-    ap-northeast-1:
-      "HVM64": "ami-06cd52961ce9f0d85"
-
+      "HVM64": "ami-012bb964803d474e5"
 Resources:
-
+  TaskTrackerCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: TaskTrackerCluster
   TaskTrackerTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -44,6 +39,7 @@ Resources:
         - Key: Environment
           Value: !Ref 'Environment'
 
+  #Create a Launch Template. Alternate option is Launch Configuration.
   TaskTrackerEC2ASGLT:
     Type: AWS::EC2::LaunchTemplate
     Properties:
@@ -52,13 +48,16 @@ Resources:
         ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64]
         InstanceType: !FindInMap [InstanceTypeMap,!Ref 'Environment',InstanceType]
         KeyName: keyur-new-mac-v1
+        IamInstanceProfile:
+          Arn: !ImportValue ECSInstanceProfileArn
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash -xe
             yum update -y
-            amazon-linux-extras install -y ecs
-            systemctl enable --now ecs
+            echo ECS_CLUSTER=TaskTrackerCluster >> /etc/ecs/ecs.config
+            echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config
 
+  #Create an Autoscaling Group and add it in TG
   TaskTrackerEC2ASG:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
