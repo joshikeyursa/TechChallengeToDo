@@ -35,8 +35,8 @@ jobs:
           command: |
             mvn clean test package
             aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 105712406831.dkr.ecr.ap-southeast-2.amazonaws.com
-            docker build -t kjoshi/tasktracker-app .
-            docker tag kjoshi/tasktracker-app:$CIRCLE_BUILD_NUM $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/kjoshi/tasktracker-app:latest
+            docker build -t kjoshi/tasktracker-app:$CIRCLE_BUILD_NUM .
+            docker tag kjoshi/tasktracker-app:$CIRCLE_BUILD_NUM $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/kjoshi/tasktracker-app:$CIRCLE_BUILD_NUM
             docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/kjoshi/tasktracker-app:latest
   build-and-deploy-fe:
     docker:
