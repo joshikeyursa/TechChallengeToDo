@@ -34,8 +34,10 @@ jobs:
           name: BuildAndDockerize
           command: |
             mvn clean test package
-            docker build -t kjoshi/tasktracker .
-            aws
+            aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 105712406831.dkr.ecr.ap-southeast-2.amazonaws.com
+            docker build -t kjoshi/tasktracker-app .
+            docker tag kjoshi/tasktracker-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/kjoshi/tasktracker-app:latest
+            docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/kjoshi/tasktracker-app:latest
   build-and-deploy-fe:
     docker:
       - image: cimg/openjdk:11.0
@@ -79,3 +81,4 @@ workflows:
       #- build-and-test-be
       #- build-and-deploy-fe
       - create-one-time-infra
+      - build-and-test-be
