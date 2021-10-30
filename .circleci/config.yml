@@ -61,7 +61,7 @@ jobs:
           command: aws cloudformation deploy --stack-name tasktracker-network-infra --template-file infra/onetime-network-infra.yaml
       - run:
           name: CreateRolesAndInstanceProfiles
-          command: aws cloudformation deploy --capabilities CAPABILITY_NAMED_IAM --stack-name tasktracker-compute-infra --template-file infra/onetime-compute-infra.yaml
+          command: aws cloudformation deploy --capabilities CAPABILITY_NAMED_IAM --stack-name tasktracker-roles-infra --template-file infra/onetime-role-infra.yaml
       - run:
           name: CreateComputeComponents
           command: aws cloudformation deploy --stack-name tasktracker-compute-infra --template-file infra/onetime-compute-infra.yaml
