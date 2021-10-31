@@ -17,10 +17,10 @@ Mappings:
       "InstanceType": "t3.micro"
   InstanceMinMax:
     Production:
-      MinInstnace: 2
+      MinInstance: 2
       MaxInstance: 5
     Development:
-      MinInstnace: 0
+      MinInstance: 0
       MaxInstance: 0
   #For now only Singapore and Sydney configurations are added. As an improvement use SSM commands to fetch these values
   ImageByRegionMap:
@@ -74,6 +74,6 @@ Resources:
       AvailabilityZones:
         - !ImportValue TaskTrackerAZ1
         - !ImportValue TaskTrackerAZ2
-      MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstnace]
-      MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstnace]
+      MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
+      MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
       #TODO: Add shutdown scheduler for non prod
