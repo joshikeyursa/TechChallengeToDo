@@ -1,0 +1,26 @@
+Parameters:
+  Environment:
+    Type: String
+    Default: Development
+    AllowedValues:
+      - Development
+      - Production
+      - Local
+      - Integration
+      - Test
+Resources:
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: kjoshi/tasktracker-app
+      ImageTagMutability: MUTABLE
+      Tags:
+        - Key: Environment
+          Value: !Ref 'Environment'
+
+Outputs:
+  TaskTrackerAppRepo:
+    Description: Location For the Task Tracker Repo where images will be uploaded
+    Value: !Ref ECRRepository
+    Export:
+      Name: TaskTrackerRepoLocation

@@ -1,0 +1,58 @@
+Resources:
+  TaskTrackerVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/24"
+      Tags:
+        - Key: Name
+          Value: TaskTrackerVPC
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/28 #!Select [0, !Cidr [ !GetAtt TaskTrackerVPC.CidrBlock,1,8]]
+      VpcId: !Ref TaskTrackerVPC
+      AvailabilityZone: !Select
+          - 0
+          - !GetAZs
+            Ref: 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: TaskTrackerPrivate Subnet 1
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.16/28 #!Select [0, !Cidr [ !GetAtt TaskTrackerVPC.CidrBlock,1,8]]
+      VpcId: !Ref TaskTrackerVPC
+      AvailabilityZone: !Select
+        - 2
+        - !GetAZs
+          Ref: 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: TaskTrackerPrivate Subnet 2
+Outputs:
+  TaskTrackerVPC:
+    Description: TaskTracker APP VPC
+    Value: !Ref TaskTrackerVPC
+    Export:
+      Name: TaskTrackerVPC
+  TaskTrackerAZ1:
+    Description: TaskTracker App AZ for Subnet1
+    Value: !GetAtt PrivateSubnet1.AvailabilityZone
+    Export:
+      Name: TaskTrackerAZ1
+  TaskTrackerSubnet1:
+    Description: TaskTracker APP Private Subnet 1
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: PrivateSubnet1
+  TaskTrackerAZ2:
+    Description: TaskTracker App AZ for Subnet2
+    Value: !GetAtt PrivateSubnet2.AvailabilityZone
+    Export:
+      Name: TaskTrackerAZ2
+  TaskTrackerSubnet2:
+    Description: TaskTracker APP Private Subnet 2
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: PrivateSubnet2

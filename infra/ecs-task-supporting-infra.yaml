@@ -1,0 +1,70 @@
+Parameters:
+  #ImageId:
+    #Type: String
+  Environment:
+    Type: String
+    Default: Development
+    AllowedValues:
+      - Development
+      - Production
+      - Local
+      - Integration
+      - Test
+Mappings:
+  TaskParametersMap:
+    Production:
+      TaskMemorySize: 2048
+    Development:
+      TaskMemorySize: 512
+
+Resources:
+  TaskTrackerDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TableName: TaskList
+      KeySchema:
+        - AttributeName: taskId
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: taskId
+          AttributeType: S
+  TaskTrackerECSRole:
+    Type: AWS::IAM::Role
+    DependsOn: TaskTrackerDynamoDBTable
+    Properties:
+      RoleName: TaskTrackerECSRole
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: TaskTrackerDynamoDBPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:BatchGetItem"
+                  - "dynamodb:BatchWriteItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:Scan"
+                  - "dynamodb:Query"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:DescribeTimeToLive"
+                  - "dynamodb:UpdateTable"
+                  - "dynamodb:GetRecords"
+                Resource: "arn:aws:dynamodb:*:105712406831:table/TaskList"
+
+
+Outputs:
+  EcsInstanceRole:
+    Description: ECS Task Role ARN
+    Value: !GetAtt TaskTrackerECSRole.Arn
+    Export:
+      Name: TaskTrackerECSRoleArn

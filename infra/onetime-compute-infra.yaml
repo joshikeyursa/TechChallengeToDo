@@ -1,0 +1,79 @@
+Parameters:
+  Environment:
+    Type: String
+    Default: Development
+    AllowedValues:
+      - Development
+      - Production
+      - Local
+      - Integration
+      - Test
+
+Mappings:
+  InstanceTypeMap:
+    Production:
+      "InstanceType": "m4.large" #Put an appropriate instance type once ready for prod.
+    Development:
+      "InstanceType": "t3.micro"
+  InstanceMinMax:
+    Production:
+      MinInstance: 2
+      MaxInstance: 5
+    Development:
+      MinInstance: 0
+      MaxInstance: 0
+  #For now only Singapore and Sydney configurations are added. As an improvement use SSM commands to fetch these values
+  ImageByRegionMap:
+    ap-southeast-1:
+      "HVM64": "ami-04e3e68fcfc9ca078"
+    ap-southeast-2:
+      "HVM64": "ami-012bb964803d474e5"
+Resources:
+  TaskTrackerCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: TaskTrackerCluster
+  TaskTrackerTG:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: TaskTrackerTG
+      TargetType: instance
+      VpcId: !ImportValue TaskTrackerVPC
+      Protocol: HTTP
+      Port: 8080 #This needs to be changed once n/w mode is changed
+      Tags:
+        - Key: Environment
+          Value: !Ref 'Environment'
+
+  #Create a Launch Template. Alternate option is Launch Configuration.
+  TaskTrackerEC2ASGLT:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: TaskTrackerAppLT
+      LaunchTemplateData:
+        ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64]
+        InstanceType: !FindInMap [InstanceTypeMap,!Ref 'Environment',InstanceType]
+        KeyName: keyur-new-mac-v1
+        IamInstanceProfile:
+          Arn: !ImportValue ECSInstanceProfileArn
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash -xe
+            yum update -y
+            echo ECS_CLUSTER=TaskTrackerCluster >> /etc/ecs/ecs.config
+            echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config
+
+  #Create an Autoscaling Group and add it in TG
+  TaskTrackerEC2ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: TaskTrackerEC2ASG
+      LaunchTemplate:
+        LaunchTemplateId: !Ref TaskTrackerEC2ASGLT
+        Version: !GetAtt TaskTrackerEC2ASGLT.LatestVersionNumber
+      AvailabilityZones:
+        - !ImportValue TaskTrackerAZ1
+        - !ImportValue TaskTrackerAZ2
+      MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
+      MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
+      #TODO: Add shutdown scheduler for non prod
