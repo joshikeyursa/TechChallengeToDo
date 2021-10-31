@@ -34,10 +34,16 @@ Mappings:
     ap-southeast-2:
       "HVM64": "ami-012bb964803d474e5"
 Resources:
-  TaskTrackerCluster:
-    Type: AWS::ECS::Cluster
+  GenericALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      ClusterName: TaskTrackerCluster
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      Name: GenericServicesALB #As the same ALB would be used for all underneath applications/microservices
+      Subnets:
+        - !ImportValue
+
+
   TaskTrackerTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -81,7 +87,9 @@ Resources:
         - !ImportValue TaskTrackerAZ2
       MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
       MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
-      #TODO: Add shutdown scheduler for non prod
+      VPCZoneIdentifier:
+        - !ImportValue PrivateSubnet1
+        - !ImportValue PrivateSubnet2
   TaskTrackerASGDown:
     Type: AWS::AutoScaling::ScheduledAction
     Condition: CreateDevSchedules
