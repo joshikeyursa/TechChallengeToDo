@@ -84,7 +84,7 @@ Resources:
       #TODO: Add shutdown scheduler for non prod
   TaskTrackerASGDown:
     Type: AWS::AutoScaling::ScheduledAction
-    Condition: CreateDevResources
+    Condition: CreateDevSchedules
     Properties:
       AutoScalingGroupName: !Ref TaskTrackerEC2ASG
       MaxSize: 0
@@ -92,7 +92,7 @@ Resources:
       Recurrence: "0 12 * * *"
   TaskTrackerASGUp:
     Type: AWS::AutoScaling::ScheduledAction
-    Condition: CreateDevResources
+    Condition: CreateDevSchedules
     Properties:
       AutoScalingGroupName: !Ref TaskTrackerEC2ASG
       MinSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MinInstance ]
