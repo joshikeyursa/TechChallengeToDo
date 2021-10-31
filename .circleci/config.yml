@@ -73,6 +73,18 @@ jobs:
           name: CreateComputeComponents
           command: aws cloudformation deploy --stack-name tasktracker-compute-infra --template-file infra/onetime-compute-infra.yaml
 
+  create-task-infra:
+    docker:
+      - image: cimg/openjdk:11.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - aws-cli/setup:
+          profile-name: default
+      - run:
+          name: CreateECSTaskSpecificRolesAndInfra
+          command: aws cloudformation deploy --capabilities CAPABILITY_NAMED_IAM --stack-name tasktracker-ecs-role-infra --template-file infra/ecs-task-supporting-infra.yaml
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   buildapp: # This is the name of the workflow, feel free to change it to better match your workflow.
@@ -82,3 +94,4 @@ workflows:
       #- build-and-deploy-fe
       - create-one-time-infra
       - build-and-test-be
+      - create-task-infra

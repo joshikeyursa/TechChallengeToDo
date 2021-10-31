@@ -15,7 +15,13 @@ Mappings:
       "InstanceType": "m4.large" #Put an appropriate instance type once ready for prod.
     Development:
       "InstanceType": "t3.micro"
-
+  InstanceMinMax:
+    Production:
+      MinInstnace: 2
+      MaxInstance: 5
+    Development:
+      MinInstnace: 0
+      MaxInstance: 0
   #For now only Singapore and Sydney configurations are added. As an improvement use SSM commands to fetch these values
   ImageByRegionMap:
     ap-southeast-1:
@@ -68,5 +74,6 @@ Resources:
       AvailabilityZones:
         - !ImportValue TaskTrackerAZ1
         - !ImportValue TaskTrackerAZ2
-      MinSize: 1
-      MaxSize: 1
+      MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstnace]
+      MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstnace]
+      #TODO: Add shutdown scheduler for non prod
