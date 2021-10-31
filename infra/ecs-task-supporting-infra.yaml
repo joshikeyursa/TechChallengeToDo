@@ -1,6 +1,4 @@
 Parameters:
-  #ImageId:
-    #Type: String
   Environment:
     Type: String
     Default: Development
@@ -60,7 +58,6 @@ Resources:
                   - "dynamodb:UpdateTable"
                   - "dynamodb:GetRecords"
                 Resource: "arn:aws:dynamodb:*:105712406831:table/TaskList"
-
 
 Outputs:
   EcsInstanceRole:

@@ -9,6 +9,11 @@ Parameters:
       - Integration
       - Test
 
+Conditions:
+  CreateDevSchedules: !Equals
+    - !Ref Environment
+    - Development
+
 Mappings:
   InstanceTypeMap:
     Production:
@@ -20,8 +25,8 @@ Mappings:
       MinInstance: 2
       MaxInstance: 5
     Development:
-      MinInstance: 0
-      MaxInstance: 0
+      MinInstance: 1
+      MaxInstance: 1
   #For now only Singapore and Sydney configurations are added. As an improvement use SSM commands to fetch these values
   ImageByRegionMap:
     ap-southeast-1:
@@ -77,3 +82,19 @@ Resources:
       MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
       MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
       #TODO: Add shutdown scheduler for non prod
+  TaskTrackerASGDown:
+    Type: AWS::AutoScaling::ScheduledAction
+    Condition: CreateDevResources
+    Properties:
+      AutoScalingGroupName: !Ref TaskTrackerEC2ASG
+      MaxSize: 0
+      MinSize: 0
+      Recurrence: "0 12 * * *"
+  TaskTrackerASGUp:
+    Type: AWS::AutoScaling::ScheduledAction
+    Condition: CreateDevResources
+    Properties:
+      AutoScalingGroupName: !Ref TaskTrackerEC2ASG
+      MinSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MinInstance ]
+      MaxSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MaxInstance ]
+      Recurrence: "0 22 * * *"

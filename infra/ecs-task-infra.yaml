@@ -1,0 +1,54 @@
+Parameters:
+  ImageId:
+    Type: String
+  Environment:
+    Type: String
+    Default: Development
+    AllowedValues:
+      - Development
+      - Production
+      - Local
+      - Integration
+      - Test
+
+Mappings:
+  ContainerSpecsMap:
+    Development:
+      Memory: 0.5GB
+      CPU: 512
+    Production:
+      Memory: 1GB
+      CPU: 2048
+
+Resources:
+  TargetTrackerECSTaskLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/ecs/TaskTrackerECSTask"
+  TaskTrackerECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Memory: !FindInMap [ ContainerSpecsMap,!Ref 'Environment',Memory ]
+      Cpu: !FindInMap [ ContainerSpecsMap,!Ref 'Environment',CPU ]
+      TaskRoleArn: !ImportValue TaskTrackerECSRoleArn
+      ContainerDefinitions:
+        - Name: TargetTrackerAppContainer
+          Image: !Ref ImageId
+          PortMappings:
+            - ContainerPort: 8080
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref TargetTrackerECSTaskLogGroup
+              awslogs-stream-prefix: ecs
+    TaskTrackerECSService:
+      Type: AWS::ECS::Service
+      Properties:
+        ServiceName: TaskTrackerECSService
+        Cluster: TaskTrackerCluster
+        TaskDefinition: !Ref TaskTrackerECSTaskDefinition
+        DeploymentConfiguration:
+          MinimumHealthyPercent: 100
+          MaximumPercent: 200
+        DesiredCount: 1
