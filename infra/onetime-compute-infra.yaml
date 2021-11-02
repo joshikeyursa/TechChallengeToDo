@@ -45,6 +45,10 @@ Resources:
           IpProtocol: tcp
           FromPort: 80
           ToPort: 80
+        - CidrIp: 0.0.0.0/0
+            IpProtocol: tcp
+            FromPort: 8080
+            ToPort: 8080
 
   GenericALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -114,8 +118,10 @@ Resources:
       MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
       MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
       VPCZoneIdentifier:
-        - !ImportValue PublicSubnet1
-        - !ImportValue PublicSubnet2
+        - !ImportValue PublicSubnet1 #This should have gone to private subnet with NAT G/w
+        - !ImportValue PublicSubnet2 #This should have gone to private subnet with NAT G/w
+      TargetGroupArns:
+        - !Ref TaskTrackerTG
   TaskTrackerASGDown:
     Type: AWS::AutoScaling::ScheduledAction
     Condition: CreateDevSchedules

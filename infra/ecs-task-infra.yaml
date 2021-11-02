@@ -31,6 +31,7 @@ Resources:
       Memory: !FindInMap [ ContainerSpecsMap,!Ref 'Environment',Memory ]
       Cpu: !FindInMap [ ContainerSpecsMap,!Ref 'Environment',CPU ]
       TaskRoleArn: !ImportValue TaskTrackerECSRoleArn
+      NetworkMode: host #This should be awsvpc but facing issue while connecting to ALB. bridge mode is better option and will change it to bridge or awsvpc later.
       ContainerDefinitions:
         - Name: TargetTrackerAppContainer
           Image: !Ref ImageId
@@ -42,15 +43,3 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-group: !Ref TargetTrackerECSTaskLogGroup
               awslogs-stream-prefix: ecs
-
-  TaskTrackerECSService:
-    Type: AWS::ECS::Service
-    Properties:
-      ServiceName: TaskTrackerECSService
-      Cluster: TaskTrackerCluster
-      TaskDefinition: !Ref TaskTrackerECSTaskDefinition
-      TargetGroupArn: !ImportValue TaskTrackerTGArn
-      DeploymentConfiguration:
-        MinimumHealthyPercent: 100
-        MaximumPercent: 200
-      DesiredCount: 1
