@@ -120,7 +120,7 @@ Resources:
       VPCZoneIdentifier:
         - !ImportValue PublicSubnet1 #This should have gone to private subnet with NAT G/w
         - !ImportValue PublicSubnet2 #This should have gone to private subnet with NAT G/w
-      TargetGroupArns:
+      TargetGroupARNs:
         - !Ref TaskTrackerTG
   TaskTrackerASGDown:
     Type: AWS::AutoScaling::ScheduledAction
