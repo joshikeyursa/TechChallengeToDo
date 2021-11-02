@@ -12,7 +12,7 @@ Resources:
         - Key: Name
           Value: TaskTrackerVPC
 
-  #Create and IGW to provide internet access to the VPC
+  #Create and IGW to provide internet access to the VPC CAUTION: This is quite expensive and not under free-tier
   GenericVPCIGW:
     Type: AWS::EC2::InternetGateway
     Properties:

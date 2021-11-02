@@ -56,6 +56,17 @@ Resources:
         - !ImportValue PublicSubnet1
         - !ImportValue PublicSubnet2
 
+  GenericALBHttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref GenericALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "application/json"
+            MessageBody: "{message:\"No Data Found\"}"
 
   TaskTrackerTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
