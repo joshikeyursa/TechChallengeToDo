@@ -34,14 +34,35 @@ Mappings:
     ap-southeast-2:
       "HVM64": "ami-012bb964803d474e5"
 Resources:
+  ALBSecuiryGroupHttpPortIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      CidrIp: 0.0.0.0/32
+      IpProtocol: tcp
+      Fromport: 80
+      Toport: 80
+
+  ALBSecuiryGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Group for ALB
+      GroupName: CustomAppsALB-SG
+      SecurityGroupEgress:
+        - Egress
+      SecurityGroupIngress:
+        - !Ref ALBSecuiryGroupHttpPortIngress
+
   GenericALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       IpAddressType: ipv4
       Scheme: internet-facing
       Name: GenericServicesALB #As the same ALB would be used for all underneath applications/microservices
+      SecurityGroups:
+        - !Ref ALBSecuiryGroup
       Subnets:
-        - !ImportValue
+        - !ImportValue PublicSubnet1
+        - !ImportValue PublicSubnet2
 
 
   TaskTrackerTG:
@@ -49,7 +70,7 @@ Resources:
     Properties:
       Name: TaskTrackerTG
       TargetType: instance
-      VpcId: !ImportValue TaskTrackerVPC
+      VpcId: !ImportValue GenericVPC
       Protocol: HTTP
       Port: 8080 #This needs to be changed once n/w mode is changed
       Tags:

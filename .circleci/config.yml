@@ -64,7 +64,7 @@ jobs:
       - aws-cli/setup:
           profile-name: default
       - run:
-          name: CreateNetworkComponents
+          name: CreateECSNetworkComponents
           command: aws cloudformation deploy --stack-name tasktracker-ecs-infra --template-file infra/onetime-ecs-infra.yaml
       - run:
           name: CreateNetworkComponents
