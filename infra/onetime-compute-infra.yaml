@@ -132,3 +132,22 @@ Resources:
       MinSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MinInstance ]
       MaxSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MaxInstance ]
       Recurrence: "0 22 * * *"
+
+Outputs:
+  ALBWebDNSName:
+    Description: DNSName for ALB
+    Value: !GetAtt GenericALB.DNSName
+    Export:
+      Name: GenericALBDNSName
+
+  ALBWHttpListener:
+    Description: HttpListener for ALB
+    Value: !Ref GenericALBHttpListener
+    Export:
+      Name: GenericALBHttpListener
+
+  GenericALB:
+    Description: Generic ALB Reference
+    Value: !Ref GenericALB
+    Export:
+      Name: GenericALB

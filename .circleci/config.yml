@@ -54,6 +54,7 @@ jobs:
           name: CreateBucketToHostWebSite
           command: aws cloudformation deploy --stack-name host-website --template-file infra/public-website.yaml
 
+  #This workflow should be totally independent of Microservice code changes.
   create-one-time-infra:
     docker:
       - image: cimg/openjdk:11.0

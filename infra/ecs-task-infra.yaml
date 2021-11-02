@@ -48,6 +48,11 @@ Resources:
       ServiceName: TaskTrackerECSService
       Cluster: TaskTrackerCluster
       TaskDefinition: !Ref TaskTrackerECSTaskDefinition
+      LoadBalancers:
+        - ContainerName: TargetTrackerAppContainer
+          ContainerPort: 8080
+          LoadBalancerName: !ImportValue GenericALB
+          
       DeploymentConfiguration:
         MinimumHealthyPercent: 100
         MaximumPercent: 200
