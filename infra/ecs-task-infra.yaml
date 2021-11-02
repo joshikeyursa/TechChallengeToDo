@@ -42,6 +42,7 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-group: !Ref TargetTrackerECSTaskLogGroup
               awslogs-stream-prefix: ecs
+
   TaskTrackerECSService:
     Type: AWS::ECS::Service
     Properties:
@@ -51,8 +52,8 @@ Resources:
       LoadBalancers:
         - ContainerName: TargetTrackerAppContainer
           ContainerPort: 8080
-          LoadBalancerName: !ImportValue GenericALB
-          
+          LoadBalancerName: GenericServicesALB
+
       DeploymentConfiguration:
         MinimumHealthyPercent: 100
         MaximumPercent: 200
