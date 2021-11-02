@@ -151,3 +151,9 @@ Outputs:
     Value: !Ref GenericALB
     Export:
       Name: GenericALB
+
+  TaskTrackerTGArn:
+    Description: Target Group ARN
+    Value: !GetAtt TaskTrackerTG.Arn
+    Export:
+      Name: TaskTrackerTGArn
