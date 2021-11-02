@@ -67,7 +67,7 @@ Resources:
           FixedResponseConfig:
             ContentType: "application/json"
             MessageBody: "{message:\"No Data Found\"}"
-
+            StatusCode: "404"
   TaskTrackerTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
