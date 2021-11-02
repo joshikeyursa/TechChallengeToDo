@@ -4,7 +4,10 @@ Resources:
   GenericVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: "10.0.0.0/24"
+      CidrBlock: "172.32.3.0/24"
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+
       Tags:
         - Key: Name
           Value: TaskTrackerVPC
@@ -28,7 +31,7 @@ Resources:
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.0.0/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
+      CidrBlock: 172.32.3.0/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
       VpcId: !Ref GenericVPC
       AvailabilityZone: !Select
           - 0
@@ -40,7 +43,7 @@ Resources:
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.0.16/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
+      CidrBlock: 172.32.3.16/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
       VpcId: !Ref GenericVPC
       AvailabilityZone: !Select
         - 1
@@ -52,8 +55,9 @@ Resources:
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.0.32/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
+      CidrBlock: 172.32.3.32/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
       VpcId: !Ref GenericVPC
+      MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - 0
         - !GetAZs
@@ -64,8 +68,9 @@ Resources:
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.0.48/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
+      CidrBlock: 172.32.3.48/28 #!Select [0, !Cidr [ !GetAtt GenericVPC.CidrBlock,1,8]]
       VpcId: !Ref GenericVPC
+      MapPublicIpOnLaunch: true
       AvailabilityZone: !Select
         - 1
         - !GetAZs

@@ -34,23 +34,17 @@ Mappings:
     ap-southeast-2:
       "HVM64": "ami-012bb964803d474e5"
 Resources:
-  ALBSecuiryGroupHttpPortIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      CidrIp: 0.0.0.0/32
-      IpProtocol: tcp
-      Fromport: 80
-      Toport: 80
 
   ALBSecuiryGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Group for ALB
-      GroupName: CustomAppsALB-SG
-      SecurityGroupEgress:
-        - Egress
+      VpcId: !ImportValue GenericVPC
       SecurityGroupIngress:
-        - !Ref ALBSecuiryGroupHttpPortIngress
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
 
   GenericALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -58,8 +52,6 @@ Resources:
       IpAddressType: ipv4
       Scheme: internet-facing
       Name: GenericServicesALB #As the same ALB would be used for all underneath applications/microservices
-      SecurityGroups:
-        - !Ref ALBSecuiryGroup
       Subnets:
         - !ImportValue PublicSubnet1
         - !ImportValue PublicSubnet2
@@ -109,8 +101,8 @@ Resources:
       MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
       MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
       VPCZoneIdentifier:
-        - !ImportValue PrivateSubnet1
-        - !ImportValue PrivateSubnet2
+        - !ImportValue PublicSubnet1
+        - !ImportValue PublicSubnet2
   TaskTrackerASGDown:
     Type: AWS::AutoScaling::ScheduledAction
     Condition: CreateDevSchedules
