@@ -154,6 +154,6 @@ Outputs:
 
   TaskTrackerTGArn:
     Description: Target Group ARN
-    Value: !GetAtt TaskTrackerTG.Arn
+    Value: !Ref TaskTrackerTG
     Export:
       Name: TaskTrackerTGArn
