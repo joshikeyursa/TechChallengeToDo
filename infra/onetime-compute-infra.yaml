@@ -114,6 +114,8 @@ Resources:
     Properties:
       LaunchTemplateName: TaskTrackerAppLT
       LaunchTemplateData:
+        SecurityGroupIds:
+          - !Ref ALBSecuiryGroup
         ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64] #There should be a way to fetch this by Parameter Store value ImageByRegionMap/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
         InstanceType: !FindInMap [InstanceTypeMap,!Ref 'Environment',InstanceType]
         KeyName: keyur-new-mac-v1
