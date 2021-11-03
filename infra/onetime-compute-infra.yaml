@@ -9,6 +9,11 @@ Parameters:
       - Integration
       - Test
 
+Conditions:
+  CreateDevSchedules: !Equals
+    - !Ref Environment
+    - Development
+
 Mappings:
   InstanceTypeMap:
     Production:
@@ -20,8 +25,8 @@ Mappings:
       MinInstance: 2
       MaxInstance: 5
     Development:
-      MinInstance: 0
-      MaxInstance: 0
+      MinInstance: 1
+      MaxInstance: 1
   #For now only Singapore and Sydney configurations are added. As an improvement use SSM commands to fetch these values
   ImageByRegionMap:
     ap-southeast-1:
@@ -29,16 +34,74 @@ Mappings:
     ap-southeast-2:
       "HVM64": "ami-012bb964803d474e5"
 Resources:
-  TaskTrackerCluster:
-    Type: AWS::ECS::Cluster
+
+  ALBSecuiryGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      ClusterName: TaskTrackerCluster
+      GroupDescription: Group for ALB
+      VpcId: !ImportValue GenericVPC
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+
+  GenericALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref ALBSecuiryGroup
+      Name: GenericServicesALB #As the same ALB would be used for all underneath applications/microservices
+      Subnets:
+        - !ImportValue PublicSubnet1
+        - !ImportValue PublicSubnet2
+
+  GenericALBHttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref GenericALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "application/json"
+            MessageBody: "{message:\"No Data Found\"}"
+            StatusCode: "404"
+
+  ECSTGListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref GenericALBHttpListener
+      Priority: 100
+      Conditions:
+        - Field: path-pattern
+          Values:
+              - "/api/"
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TaskTrackerTG
+          Order: 100
+
   TaskTrackerTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: TaskTrackerTG
       TargetType: instance
-      VpcId: !ImportValue TaskTrackerVPC
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 300
+      HealthCheckPath: /api/
+      HealthCheckPort: 8080
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 60
+      HealthyThresholdCount: 3
+      VpcId: !ImportValue GenericVPC
       Protocol: HTTP
       Port: 8080 #This needs to be changed once n/w mode is changed
       Tags:
@@ -51,7 +114,9 @@ Resources:
     Properties:
       LaunchTemplateName: TaskTrackerAppLT
       LaunchTemplateData:
-        ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64]
+        SecurityGroupIds:
+          - !Ref ALBSecuiryGroup
+        ImageId: !FindInMap [ImageByRegionMap,!Ref "AWS::Region",HVM64] #There should be a way to fetch this by Parameter Store value ImageByRegionMap/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
         InstanceType: !FindInMap [InstanceTypeMap,!Ref 'Environment',InstanceType]
         KeyName: keyur-new-mac-v1
         IamInstanceProfile:
@@ -76,4 +141,49 @@ Resources:
         - !ImportValue TaskTrackerAZ2
       MinSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MinInstance]
       MaxSize: !FindInMap [InstanceMinMax, !Ref 'Environment',MaxInstance]
-      #TODO: Add shutdown scheduler for non prod
+      VPCZoneIdentifier: #This should have gone to private subnet with NAT G/w, but this it is not registering to ECS cluster.
+        - !ImportValue PublicSubnet1
+        - !ImportValue PublicSubnet2
+      TargetGroupARNs:
+        - !Ref TaskTrackerTG
+  TaskTrackerASGDown:
+    Type: AWS::AutoScaling::ScheduledAction
+    Condition: CreateDevSchedules
+    Properties:
+      AutoScalingGroupName: !Ref TaskTrackerEC2ASG
+      MaxSize: 0
+      MinSize: 0
+      Recurrence: "0 12 * * *"
+  TaskTrackerASGUp:
+    Type: AWS::AutoScaling::ScheduledAction
+    Condition: CreateDevSchedules
+    Properties:
+      AutoScalingGroupName: !Ref TaskTrackerEC2ASG
+      MinSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MinInstance ]
+      MaxSize: !FindInMap [ InstanceMinMax, !Ref 'Environment',MaxInstance ]
+      Recurrence: "0 22 * * *"
+
+Outputs:
+  ALBWebDNSName:
+    Description: DNSName for ALB
+    Value: !GetAtt GenericALB.DNSName
+    Export:
+      Name: GenericALBDNSName
+
+  ALBWHttpListener:
+    Description: HttpListener for ALB
+    Value: !Ref GenericALBHttpListener
+    Export:
+      Name: GenericALBHttpListener
+
+  GenericALB:
+    Description: Generic ALB Reference
+    Value: !Ref GenericALB
+    Export:
+      Name: GenericALB
+
+  TaskTrackerTGArn:
+    Description: Target Group ARN
+    Value: !Ref TaskTrackerTG
+    Export:
+      Name: TaskTrackerTGArn

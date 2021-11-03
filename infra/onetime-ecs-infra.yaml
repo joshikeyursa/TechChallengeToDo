@@ -9,6 +9,11 @@ Parameters:
       - Integration
       - Test
 Resources:
+  TaskTrackerCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: TaskTrackerCluster
+
   ECRRepository:
     Type: AWS::ECR::Repository
     Properties:
