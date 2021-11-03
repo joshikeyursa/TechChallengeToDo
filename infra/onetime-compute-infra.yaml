@@ -81,6 +81,7 @@ Resources:
       ListenerArn: !Ref GenericALBHttpListener
       Actions:
         - Type: forward
+          ListenerRule: 100
           TargetGroupArn: !Ref TaskTrackerTG
           Order: 100
 
