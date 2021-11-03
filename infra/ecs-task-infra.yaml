@@ -43,3 +43,13 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-group: !Ref TargetTrackerECSTaskLogGroup
               awslogs-stream-prefix: ecs
+  TaskTrackerECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: TaskTrackerECSService
+      Cluster: TaskTrackerCluster
+      TaskDefinition: !Ref TaskTrackerECSTaskDefinition
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      DesiredCount: 1
