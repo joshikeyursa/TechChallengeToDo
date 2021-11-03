@@ -34,4 +34,12 @@ Following approaches were considered for building this application
   * If load is consistent and predictable this option worth considering as 
     * Existing skill-set available within the team.
     * Cost can be optimized by implementing correct start up and shut down mechanism.
-  
+    
+### Improvements to be done
+* Use network mode awsvpc and run more than one task on same EC2 Instance
+* Implement the same Code with Lambda (preferably with Python) and run it behind API Gateway.
+* Change the microservice code to integrate with DynamoDB.
+* Implement some FrontEnd code and put it behind CloudFront.
+* Create Route53 hosted zone (may be a stretch goal)
+* Use Terraform to deploy same infra.
+* CircleCI to pickup jobs based on flags i.e. No need to run all infra jobs when we just need to deploy new version of  service/task.
