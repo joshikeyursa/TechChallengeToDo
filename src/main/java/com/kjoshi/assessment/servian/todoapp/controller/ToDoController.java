@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/v1")
 public class ToDoController {
 
     @Autowired
@@ -23,7 +23,7 @@ public class ToDoController {
         this.service = service;
     }
 
-    @GetMapping("/")
+    @GetMapping("/api")
     public ResponseEntity<List<TaskBean>> getAllTasks(){
         HttpStatus returnStatus = HttpStatus.OK;
         try{
@@ -34,7 +34,7 @@ public class ToDoController {
         return ResponseEntity.status(returnStatus).body(new ArrayList<TaskBean>());
     }
 
-    @GetMapping("/{taskId}")
+    @GetMapping("/api/{taskId}")
     public ResponseEntity<TaskBean> getTaskById(@PathVariable("taskId") String taskId){
         Optional<TaskBean> taskRecord = service.getTaskById(taskId);
         if(taskRecord.isPresent()){
@@ -46,13 +46,13 @@ public class ToDoController {
         }
     }
 
-    @PostMapping("/")
+    @PostMapping("/api")
     public ResponseEntity<TaskBean> createTask(@RequestBody TaskBean taskBean){
         taskBean.setId(UUID.randomUUID().toString());
         return ResponseEntity.ok(service.createTask(taskBean));
     }
 
-    @DeleteMapping("/{taskId}")
+    @DeleteMapping("/api/{taskId}")
     public ResponseEntity<TaskBean> deleteTask(@PathVariable("taskId")  String taskId){
         Optional<TaskBean> taskRecord = service.getTaskById(taskId);
         if(taskRecord.isPresent()){

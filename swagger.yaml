@@ -1,0 +1,120 @@
+swagger: "2.0"
+info:
+  description: "This is a sample server ToDo list server."
+  version: "1.0.0"
+  title: "Swagger ToDo"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "joshikeyursa@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "GenericServicesALB-987885764.ap-southeast-2.elb.amazonaws.com"
+basePath: "/v1"
+schemes:
+  - "http"
+paths:
+  /api:
+    post:
+      #tags:
+      #- "pet"
+      summary: "Add a new Task"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Task object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/Task"
+      responses:
+        "405":
+          description: "Invalid input"
+
+  /api/{taskId}:
+    get:
+      summary: "Find task by ID"
+      description: "Returns a single Task"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "taskId"
+          in: "path"
+          description: "ID of a task to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Task"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Task not found"
+    put:
+      summary: "Update an existing task"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "taskId"
+          in: "path"
+          description: "Task id to delete"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Task not found"
+    delete:
+      summary: "Deletes a task"
+      description: ""
+      produces:
+        - "application/json"
+      parameters:
+        - name: "taskId"
+          in: "path"
+          description: "Task id to delete"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Task not found"
+definitions:
+  Task:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      description:
+        type: "string"
+      priority:
+        type: "string"
+
+  ApiResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      description:
+        type: "string"
+      priority:
+        type: "string"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
