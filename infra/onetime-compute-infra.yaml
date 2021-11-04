@@ -83,7 +83,7 @@ Resources:
       Conditions:
         - Field: path-pattern
           Values:
-              - "/api/"
+              - "/api/*"
       Actions:
         - Type: forward
           TargetGroupArn: !Ref TaskTrackerTG
